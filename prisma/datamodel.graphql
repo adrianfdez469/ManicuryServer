@@ -1,0 +1,35 @@
+type User {
+  id: ID! @id
+  username: String! @unique
+  password: String!
+}
+
+type Client {
+    id: ID! @id
+    name: String!
+    phone: String
+    address: String
+    imgUrl: String
+}
+
+type WorkType {
+    id: ID! @id
+    name: String!
+    price: Float!
+}
+
+type IngressOfWork {
+    id: ID! @id
+    workType: WorkType! @relation(link:INLINE) 
+    client: Client @relation(link:INLINE)
+    ingressAmount: Float!
+    tip: Float!
+    date: DateTime @createdAt
+}
+
+type SpendOfWork {
+    id: ID! @id
+    spendtype: String!
+    spendamount: Float!
+    date: DateTime @createdAt
+}
