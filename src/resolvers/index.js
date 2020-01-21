@@ -200,7 +200,7 @@ const resolvers = {
             
             const response = new Response();
             const func = async () => {
-                await prisma.deleteClient({clientId});
+                await prisma.deleteClient({id:clientId});
                 return CRUD_OP.DELETED;
             }
             return await response
