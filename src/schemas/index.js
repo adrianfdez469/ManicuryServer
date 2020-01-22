@@ -47,6 +47,11 @@ const typeDefs = gql`
         before: Date
         after: Date
     }
+    input numberRange {
+        gte: Float,
+        lte: Float,
+        eq: Float
+    }
 
     input pagination {
         start: Int
@@ -147,7 +152,7 @@ const typeDefs = gql`
         worktype(id: ID!): workTypeResponse!
 
         # Spend of work
-        spends(spendtype: String, spendamount: Float, dateRange: dateRange, pagination: pagination): spendsResponse!
+        spends(spendtype: String, spendamount: numberRange, dateRange: dateRange, pagination: pagination): spendsResponse!
         spend(id: ID!): spendResponse!
 
         # IngressOfWork

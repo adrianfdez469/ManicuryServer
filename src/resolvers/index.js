@@ -97,9 +97,10 @@ const resolvers = {
             }
             return await response.isAuth(user).resolve(func);
         },
-        spends: async (_, {spendtype, spendamount, dateRange = {before:undefined, after:undefined}, pagination = {start:0, limit:20}},{user}) => {
+        spends: async (_, {spendtype, spendamount = {gte: undefined, lte: undefined, eq: undefined}, dateRange = {before:undefined, after:undefined}, pagination = {start:0, limit:20}},{user}) => {
             const response = new Response();
-            const {before, after} = dateRange; 
+            const {before, after} = dateRange;
+            const {gte, lte, eq} = spendamount; 
             const {start, limit} = pagination;
             
             const func = async context => {
@@ -108,7 +109,9 @@ const resolvers = {
                         {date_gte: after},
                         {date_lte: before},
                         {spendtype_contains: spendtype},
-                        {spendamount}
+                        {spendamount_gte: gte},
+                        {spendamount_lte: lte},
+                        {spendamount: eq}
                     ]
                 }, 
                 skip: start,
