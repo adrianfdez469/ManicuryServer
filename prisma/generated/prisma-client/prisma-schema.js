@@ -232,6 +232,7 @@ input IngressOfWorkCreateInput {
   client: ClientCreateOneInput
   ingressAmount: Float!
   tip: Float!
+  date: DateTime
 }
 
 type IngressOfWorkEdge {
@@ -278,11 +279,13 @@ input IngressOfWorkUpdateInput {
   client: ClientUpdateOneInput
   ingressAmount: Float
   tip: Float
+  date: DateTime
 }
 
 input IngressOfWorkUpdateManyMutationInput {
   ingressAmount: Float
   tip: Float
+  date: DateTime
 }
 
 input IngressOfWorkWhereInput {
@@ -421,6 +424,7 @@ input SpendOfWorkCreateInput {
   id: ID
   spendtype: String!
   spendamount: Float!
+  date: DateTime
 }
 
 type SpendOfWorkEdge {
@@ -465,11 +469,13 @@ input SpendOfWorkSubscriptionWhereInput {
 input SpendOfWorkUpdateInput {
   spendtype: String
   spendamount: Float
+  date: DateTime
 }
 
 input SpendOfWorkUpdateManyMutationInput {
   spendtype: String
   spendamount: Float
+  date: DateTime
 }
 
 input SpendOfWorkWhereInput {

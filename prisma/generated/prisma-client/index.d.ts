@@ -618,6 +618,7 @@ export interface IngressOfWorkCreateInput {
   client?: Maybe<ClientCreateOneInput>;
   ingressAmount: Float;
   tip: Float;
+  date?: Maybe<DateTimeInput>;
 }
 
 export interface WorkTypeCreateOneInput {
@@ -641,6 +642,7 @@ export interface IngressOfWorkUpdateInput {
   client?: Maybe<ClientUpdateOneInput>;
   ingressAmount?: Maybe<Float>;
   tip?: Maybe<Float>;
+  date?: Maybe<DateTimeInput>;
 }
 
 export interface WorkTypeUpdateOneRequiredInput {
@@ -684,22 +686,26 @@ export interface ClientUpsertNestedInput {
 export interface IngressOfWorkUpdateManyMutationInput {
   ingressAmount?: Maybe<Float>;
   tip?: Maybe<Float>;
+  date?: Maybe<DateTimeInput>;
 }
 
 export interface SpendOfWorkCreateInput {
   id?: Maybe<ID_Input>;
   spendtype: String;
   spendamount: Float;
+  date?: Maybe<DateTimeInput>;
 }
 
 export interface SpendOfWorkUpdateInput {
   spendtype?: Maybe<String>;
   spendamount?: Maybe<Float>;
+  date?: Maybe<DateTimeInput>;
 }
 
 export interface SpendOfWorkUpdateManyMutationInput {
   spendtype?: Maybe<String>;
   spendamount?: Maybe<Float>;
+  date?: Maybe<DateTimeInput>;
 }
 
 export interface UserCreateInput {

@@ -24,12 +24,12 @@ type IngressOfWork {
     client: Client @relation(link:INLINE)
     ingressAmount: Float!
     tip: Float!
-    date: DateTime @createdAt
+    date: DateTime
 }
 
 type SpendOfWork {
     id: ID! @id
     spendtype: String!
     spendamount: Float!
-    date: DateTime @createdAt
+    date: DateTime
 }
