@@ -121,6 +121,12 @@ const typeDefs = gql`
         spend: [SpendOfWork]
     }
 
+    type totalSpendsResponse implements IResponse {
+        success: Boolean!
+        message: String
+        total: Float!
+    }
+
     type ingressResponse implements IResponse{
         success: Boolean!
         message: String
@@ -131,6 +137,12 @@ const typeDefs = gql`
         success: Boolean!
         message: String
         ingress: [IngressOfWork]
+    }
+
+    type totalIngressesResponse implements IResponse{
+        success: Boolean!
+        message: String
+        total: Float!
     }
 
     type Response implements IResponse{
@@ -154,10 +166,13 @@ const typeDefs = gql`
         # Spend of work
         spends(spendtype: String, spendamount: numberRange, dateRange: dateRange, pagination: pagination): spendsResponse!
         spend(id: ID!): spendResponse!
+        totalSpends(dateRange: dateRange): totalSpendsResponse!
 
         # IngressOfWork
-        ingresses(worktype: String, client: String, ingress: Float, tip: Float, dateRange: dateRange, pagination: pagination): ingressesResponse!
+        ingresses(worktype: String, client: String, ingress: numberRange, tip: numberRange, dateRange: dateRange, pagination: pagination): ingressesResponse!
         ingress(id:ID): ingressResponse!
+        totalIngresses(dateRange: dateRange): totalIngressesResponse!
+        
     }
 
     type Mutation {
@@ -171,10 +186,10 @@ const typeDefs = gql`
         upsertWorkType(workTypeId: ID, name: String!, price: Float!): workTypeResponse!
         removeWorkType(workTypeId: ID!): Response!
 
-        upsertSpend(spendId: ID, spendtype: String!, amount: Float!): spendResponse!
+        upsertSpend(spendId: ID, spendtype: String!, amount: Float!, date: Date): spendResponse!
         removeSpend(spendId: ID!): Response!
 
-        upsertIngress(ingressId: ID, worktypeId: ID!, clientId: ID, amount: Float!, tip: Float!): ingressResponse!
+        upsertIngress(ingressId: ID, worktypeId: ID!, clientId: ID, amount: Float!, tip: Float!, date: Date): ingressResponse!
         removeIngress(ingressId: ID!): Response!
         
     }
