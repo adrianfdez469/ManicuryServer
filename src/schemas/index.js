@@ -26,11 +26,18 @@ const typeDefs = gql`
         imgUrl: String
     }
 
+    type WorkTypeCategory {
+        id: ID!
+        name: String!
+        color: String!
+    }
+
     # Work types, used to define the type of ingress
     type WorkType {
         id: ID!
         name: String!
         price: Float!
+        category: WorkTypeCategory!
     }
 
     # This is used to track all the works that my mom does, all the ingresses that she has on the manicury
@@ -89,6 +96,12 @@ const typeDefs = gql`
         client: [Client]
     }
 
+    type workTyupeCategorysResponse implements IResponse {
+        success: Boolean!
+        message: String
+        worktypecategory: [WorkTypeCategory]
+    }
+
     type workTypeResponse implements IResponse{
         success: Boolean!
         message: String
@@ -121,6 +134,12 @@ const typeDefs = gql`
         spend: [SpendOfWork]
     }
 
+    type totalSpendsResponse implements IResponse {
+        success: Boolean!
+        message: String
+        total: Float!
+    }
+
     type ingressResponse implements IResponse{
         success: Boolean!
         message: String
@@ -131,6 +150,12 @@ const typeDefs = gql`
         success: Boolean!
         message: String
         ingress: [IngressOfWork]
+    }
+
+    type totalIngressesResponse implements IResponse{
+        success: Boolean!
+        message: String
+        total: Float!
     }
 
     type Response implements IResponse{
@@ -147,6 +172,9 @@ const typeDefs = gql`
         clients(name: String, phone: String, address: String): clientsResponse!
         client(id: ID!): clientResponse!
 
+        # worktypecatergory
+        worktypecategory(name: String): workTyupeCategorysResponse!
+
         # WorkType
         worktypes(name: String): workTypesResponse!
         worktype(id: ID!): workTypeResponse!
@@ -154,10 +182,13 @@ const typeDefs = gql`
         # Spend of work
         spends(spendtype: String, spendamount: numberRange, dateRange: dateRange, pagination: pagination): spendsResponse!
         spend(id: ID!): spendResponse!
+        totalSpends(dateRange: dateRange): totalSpendsResponse!
 
         # IngressOfWork
-        ingresses(worktype: String, client: String, ingress: Float, tip: Float, dateRange: dateRange, pagination: pagination): ingressesResponse!
+        ingresses(worktype: String, client: String, ingress: numberRange, tip: numberRange, 
+            dateRange: dateRange, pagination: pagination, worktypeIds: [ID], wtcategoryIds: [ID]): ingressesResponse!
         ingress(id:ID): ingressResponse!
+        totalIngresses(worktypeIds: [ID], wtcategoryIds: [ID], dateRange: dateRange): totalIngressesResponse!
     }
 
     type Mutation {
@@ -168,13 +199,13 @@ const typeDefs = gql`
         uploadImage(clientId: ID!, file: Upload!): File!
         #deleteClientImage(clientId: ID!): Boolean!
 
-        upsertWorkType(workTypeId: ID, name: String!, price: Float!): workTypeResponse!
+        upsertWorkType(workTypeId: ID, wtcategoryId: ID!, name: String!, price: Float!): workTypeResponse!
         removeWorkType(workTypeId: ID!): Response!
 
-        upsertSpend(spendId: ID, spendtype: String!, amount: Float!): spendResponse!
+        upsertSpend(spendId: ID, spendtype: String!, amount: Float!, date: Date): spendResponse!
         removeSpend(spendId: ID!): Response!
 
-        upsertIngress(ingressId: ID, worktypeId: ID!, clientId: ID, amount: Float!, tip: Float!): ingressResponse!
+        upsertIngress(ingressId: ID, worktypeId: ID!, clientId: ID, amount: Float!, tip: Float!, date: Date): ingressResponse!
         removeIngress(ingressId: ID!): Response!
         
     }

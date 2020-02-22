@@ -23,6 +23,10 @@ type AggregateWorkType {
   count: Int!
 }
 
+type AggregateWorkTypeCategory {
+  count: Int!
+}
+
 type BatchPayload {
   count: Long!
 }
@@ -369,6 +373,12 @@ type Mutation {
   upsertWorkType(where: WorkTypeWhereUniqueInput!, create: WorkTypeCreateInput!, update: WorkTypeUpdateInput!): WorkType!
   deleteWorkType(where: WorkTypeWhereUniqueInput!): WorkType
   deleteManyWorkTypes(where: WorkTypeWhereInput): BatchPayload!
+  createWorkTypeCategory(data: WorkTypeCategoryCreateInput!): WorkTypeCategory!
+  updateWorkTypeCategory(data: WorkTypeCategoryUpdateInput!, where: WorkTypeCategoryWhereUniqueInput!): WorkTypeCategory
+  updateManyWorkTypeCategories(data: WorkTypeCategoryUpdateManyMutationInput!, where: WorkTypeCategoryWhereInput): BatchPayload!
+  upsertWorkTypeCategory(where: WorkTypeCategoryWhereUniqueInput!, create: WorkTypeCategoryCreateInput!, update: WorkTypeCategoryUpdateInput!): WorkTypeCategory!
+  deleteWorkTypeCategory(where: WorkTypeCategoryWhereUniqueInput!): WorkTypeCategory
+  deleteManyWorkTypeCategories(where: WorkTypeCategoryWhereInput): BatchPayload!
 }
 
 enum MutationType {
@@ -404,6 +414,9 @@ type Query {
   workType(where: WorkTypeWhereUniqueInput!): WorkType
   workTypes(where: WorkTypeWhereInput, orderBy: WorkTypeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [WorkType]!
   workTypesConnection(where: WorkTypeWhereInput, orderBy: WorkTypeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): WorkTypeConnection!
+  workTypeCategory(where: WorkTypeCategoryWhereUniqueInput!): WorkTypeCategory
+  workTypeCategories(where: WorkTypeCategoryWhereInput, orderBy: WorkTypeCategoryOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [WorkTypeCategory]!
+  workTypeCategoriesConnection(where: WorkTypeCategoryWhereInput, orderBy: WorkTypeCategoryOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): WorkTypeCategoryConnection!
   node(id: ID!): Node
 }
 
@@ -536,6 +549,7 @@ type Subscription {
   spendOfWork(where: SpendOfWorkSubscriptionWhereInput): SpendOfWorkSubscriptionPayload
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
   workType(where: WorkTypeSubscriptionWhereInput): WorkTypeSubscriptionPayload
+  workTypeCategory(where: WorkTypeCategorySubscriptionWhereInput): WorkTypeCategorySubscriptionPayload
 }
 
 type User {
@@ -657,6 +671,143 @@ type WorkType {
   id: ID!
   name: String!
   price: Float!
+  category: WorkTypeCategory!
+}
+
+type WorkTypeCategory {
+  id: ID!
+  name: String!
+  color: String!
+}
+
+type WorkTypeCategoryConnection {
+  pageInfo: PageInfo!
+  edges: [WorkTypeCategoryEdge]!
+  aggregate: AggregateWorkTypeCategory!
+}
+
+input WorkTypeCategoryCreateInput {
+  id: ID
+  name: String!
+  color: String!
+}
+
+input WorkTypeCategoryCreateOneInput {
+  create: WorkTypeCategoryCreateInput
+  connect: WorkTypeCategoryWhereUniqueInput
+}
+
+type WorkTypeCategoryEdge {
+  node: WorkTypeCategory!
+  cursor: String!
+}
+
+enum WorkTypeCategoryOrderByInput {
+  id_ASC
+  id_DESC
+  name_ASC
+  name_DESC
+  color_ASC
+  color_DESC
+}
+
+type WorkTypeCategoryPreviousValues {
+  id: ID!
+  name: String!
+  color: String!
+}
+
+type WorkTypeCategorySubscriptionPayload {
+  mutation: MutationType!
+  node: WorkTypeCategory
+  updatedFields: [String!]
+  previousValues: WorkTypeCategoryPreviousValues
+}
+
+input WorkTypeCategorySubscriptionWhereInput {
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: WorkTypeCategoryWhereInput
+  AND: [WorkTypeCategorySubscriptionWhereInput!]
+}
+
+input WorkTypeCategoryUpdateDataInput {
+  name: String
+  color: String
+}
+
+input WorkTypeCategoryUpdateInput {
+  name: String
+  color: String
+}
+
+input WorkTypeCategoryUpdateManyMutationInput {
+  name: String
+  color: String
+}
+
+input WorkTypeCategoryUpdateOneRequiredInput {
+  create: WorkTypeCategoryCreateInput
+  update: WorkTypeCategoryUpdateDataInput
+  upsert: WorkTypeCategoryUpsertNestedInput
+  connect: WorkTypeCategoryWhereUniqueInput
+}
+
+input WorkTypeCategoryUpsertNestedInput {
+  update: WorkTypeCategoryUpdateDataInput!
+  create: WorkTypeCategoryCreateInput!
+}
+
+input WorkTypeCategoryWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  name: String
+  name_not: String
+  name_in: [String!]
+  name_not_in: [String!]
+  name_lt: String
+  name_lte: String
+  name_gt: String
+  name_gte: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  color: String
+  color_not: String
+  color_in: [String!]
+  color_not_in: [String!]
+  color_lt: String
+  color_lte: String
+  color_gt: String
+  color_gte: String
+  color_contains: String
+  color_not_contains: String
+  color_starts_with: String
+  color_not_starts_with: String
+  color_ends_with: String
+  color_not_ends_with: String
+  AND: [WorkTypeCategoryWhereInput!]
+}
+
+input WorkTypeCategoryWhereUniqueInput {
+  id: ID
 }
 
 type WorkTypeConnection {
@@ -669,6 +820,7 @@ input WorkTypeCreateInput {
   id: ID
   name: String!
   price: Float!
+  category: WorkTypeCategoryCreateOneInput!
 }
 
 input WorkTypeCreateOneInput {
@@ -715,11 +867,13 @@ input WorkTypeSubscriptionWhereInput {
 input WorkTypeUpdateDataInput {
   name: String
   price: Float
+  category: WorkTypeCategoryUpdateOneRequiredInput
 }
 
 input WorkTypeUpdateInput {
   name: String
   price: Float
+  category: WorkTypeCategoryUpdateOneRequiredInput
 }
 
 input WorkTypeUpdateManyMutationInput {
@@ -776,6 +930,7 @@ input WorkTypeWhereInput {
   price_lte: Float
   price_gt: Float
   price_gte: Float
+  category: WorkTypeCategoryWhereInput
   AND: [WorkTypeWhereInput!]
 }
 

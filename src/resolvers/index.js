@@ -3,15 +3,18 @@ const {prisma} = require('../../prisma/generated/prisma-client');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const {JWT_SECRET_KEY, Response, CRUD_OP} = require('../util');
+var moment = require('moment');
 
 const resolvers = {
     Date: new GraphQLScalarType({
         name: 'Date',
         description: 'Date custom scalar type',
         parseValue(value) {
+            //return moment(value).calendar();
             return new Date(value); // value from the client
         },
         serialize(value) {
+            //return moment(value).calendar();
             return new Date(value);
         },
         parseLiteral(ast) {
@@ -23,14 +26,20 @@ const resolvers = {
                 if(date.toString() === "Invalid Date"){
                     return null;
                 }else{
-                    return date;
-                }  
+                    //return date;
+                    return moment(date).toDate();
+                }
             }
             return null;
         }
     }),
+    WorkType: {
+        category: async parent => {
+            return await prisma.workType({id: parent.id}).category();
+        }
+    },
     IngressOfWork: {
-        client: async parent => {
+        client: async parent => {            
             return await prisma.ingressOfWork({id: parent.id}).client();
         },
         workType: async parent => {
@@ -81,6 +90,14 @@ const resolvers = {
             }
             return await response.isAuth(user).resolve(func);
         },
+        worktypecategory: async (_, {name}, {user}) => {
+            const response = new Response();
+            const func = async context => {
+                context.worktypecategory = await prisma.workTypeCategories({where: {name_contains: name}});
+                return "Ok";
+            }
+            return await response.isAuth(user).resolve(func);
+        },
         worktypes: async (_, {name}, {user}) => {
             const response = new Response();
             const func = async context => {
@@ -103,17 +120,21 @@ const resolvers = {
             const {gte, lte, eq} = spendamount; 
             const {start, limit} = pagination;
             
+            const mBefore = before ? moment(before).hour(24).minute(59).second(59).toDate() : undefined;
+            const mAfter = after ? moment(after).hour(0).minute(0).second(0).toDate() : undefined;
+
             const func = async context => {
                 context.spend = await prisma.spendOfWorks({where: {
                     AND: [
-                        {date_gte: after},
-                        {date_lte: before},
+                        {date_gte: mAfter},
+                        {date_lte: mBefore},
                         {spendtype_contains: spendtype},
                         {spendamount_gte: gte},
                         {spendamount_lte: lte},
                         {spendamount: eq}
                     ]
                 }, 
+                orderBy: "date_DESC",
                 skip: start,
                 first: limit
             });
@@ -130,27 +151,89 @@ const resolvers = {
             }
             return await response.isAuth(user).resolve(func);
         },
-        ingresses: async (_, {worktype, client, ingress, tip, dateRange = {before:undefined, after:undefined}, pagination = {start:0, limit:20}}, {user}) => {
-            const response = new Response();
+        totalSpends: async (_, {dateRange = {before:undefined, after:undefined}}, {user}) => {
             const {before, after} = dateRange;
-            const {start, limit} = pagination;
-
+            const response = new Response();
             const func = async context => {
-                const ingresses = await prisma.ingressOfWorks({
-                    where: {
+                const spends = await prisma.spendOfWorks({where: {
                         AND: [
-                            {workType: {name_contains: worktype}},
-                            {client: {name_contains: client}},
-                            {ingressAmount: ingress},
-                            {tip},
                             {date_gte: after},
                             {date_lte: before}
-                        ]},
+                        ]
+                    }                
+                });
+
+                context.total = spends.reduce((acumulator, value) => {
+                    acumulator += value.spendamount;
+                    return acumulator;
+                }, 0);
+                return "Ok";
+            }
+
+            return response.isAuth(user).resolve(func);
+        },
+        ingresses: async (_, {worktype,
+                                client, 
+                                ingress = {gte: undefined, lte: undefined, eq: undefined},
+                                tip = {gte: undefined, lte: undefined, eq: undefined}, 
+                                dateRange = {before:undefined, after:undefined}, 
+                                pagination = {start:0, limit:5},
+                                worktypeIds = [], 
+                                wtcategoryIds = [],
+                            }, {user}
+                        ) => {
+
+            const response = new Response();
+            const {gte: ingressAmount_gte, lte:ingressAmount_lte, eq: ingressAmount} = ingress;
+            const {gte:tip_gte, lte: tip_lte, eq:tipammount} = tip;
+            const {before, after} = dateRange;
+            const {start, limit} = pagination;
+            
+            const mBefore = before ? moment(before).hour(24).minute(59).second(59).toDate() : undefined;
+            const mAfter = after ? moment(after).hour(0).minute(0).second(0).toDate() : undefined;
+
+            const func = async context => {
+
+
+                const where = {
+                        AND: [
+                           
+                            {ingressAmount_gte},
+                            {ingressAmount_lte},
+                            {ingressAmount},
+                            
+                            {tip_gte},
+                            {tip_lte},
+                            {tip:tipammount},
+                            
+                            {date_gte: mAfter},
+                            {date_lte: mBefore}
+                        ]};
+
+                if(client)
+                    where.AND.push({client: {name_contains: client}});
+                
+                if(worktype)
+                    where.AND.push({workType: {name_contains: worktype}});
+                
+                if(worktypeIds.length > 0)
+                    where.AND.push({workType: {id_in: worktypeIds}});
+                
+                if(wtcategoryIds.length > 0)
+                    where.AND.push({workType: {category: {id_in: wtcategoryIds}}});
+                   
+
+
+                const ingresses = await prisma.ingressOfWorks({
+                    where,                    
+                    orderBy: "date_DESC",
                     skip: start,
                     first: limit,
                 });
-                
+
+
                 context.ingress = ingresses;
+                
                 return "Ok";
             }
             return await response.isAuth(user).resolve(func);
@@ -162,6 +245,42 @@ const resolvers = {
                 return "Ok";
             }
             return await response.isAuth(user).resolve(func);
+        }, 
+        totalIngresses: async (_, {
+            worktypeIds = [], 
+            wtcategoryIds = [],
+            dateRange = {before:undefined, after:undefined}
+        }, {user}) => {
+            
+            const {before, after} = dateRange;
+            const mBefore = before ? moment(before).hour(24).minute(59).second(59).toDate() : undefined;
+            const mAfter = after ? moment(after).hour(0).minute(0).second(0).toDate() : undefined;
+
+            const response = new Response();
+            const func = async context => {
+
+                const where = {
+                    AND: [
+                        {date_gte: mAfter},
+                        {date_lte: mBefore}                        
+                    ]
+                };
+
+                if(worktypeIds.length > 0)
+                    where.AND.push({workType: {id_in: worktypeIds}});
+                if(wtcategoryIds.length > 0)
+                    where.AND.push({workType: {category: {id_in: wtcategoryIds}}});
+
+                const ingress = await prisma.ingressOfWorks({where});
+
+                context.total = ingress.reduce((acumulator, value) => {
+                    acumulator += value.ingressAmount;
+                    return acumulator;
+                }, 0);
+                return "Ok";
+            }
+
+            return response.isAuth(user).resolve(func);
         }
     },
     Mutation: {
@@ -220,20 +339,21 @@ const resolvers = {
             .then(file => file)
             .catch(err => console.log(err));
         },
-        upsertWorkType: async (_, {workTypeId, name, price}, {user}) => {
+        upsertWorkType: async (_, {workTypeId, wtcategoryId, name, price}, {user}) => {
             const response = new Response();
 
             let func;           
             if(workTypeId) {
                 func = async context => {
-                    const worktype = await prisma.updateWorkType({where:{id: workTypeId}, data: {name, price}});
+                    const worktype = await prisma.updateWorkType({where:{id: workTypeId}, data: {category: {connect: {id: wtcategoryId}}, name, price}});
                     context.worktype = worktype;
                     return  CRUD_OP.UPDATED;
                 };
             }
             else {
                 func = async context => {
-                    const worktype = await prisma.createWorkType({price, name});
+                    const worktype = await prisma.createWorkType({category: {connect: {id: wtcategoryId}}, price, name});
+                    
                     context.worktype = worktype;
                     return CRUD_OP.CREATED;
                 };
@@ -254,17 +374,22 @@ const resolvers = {
                 .resolve(func);
             
         },
-        upsertSpend: async (_, {spendId, spendtype, amount}, {user}) => {
+        upsertSpend: async (_, {spendId, spendtype, amount, date}, {user}) => {
             const response = new Response();
+
+            if(date)
+                date = moment(date).hour(0).minute(0).second(0).toDate();
+
             let func;
             if(spendId){
                 func = async context => {
-                    context.spend = await prisma.updateSpendOfWork({where: {id:spendId}, data: {spendamount: amount, spendtype}});
+                    context.spend = await prisma.updateSpendOfWork({where: {id:spendId}, data: {spendamount: amount, spendtype, date}});
                     return CRUD_OP.UPDATED;
                 }
             }else{
+                const actualDate = date || moment().hour(0).minute(0).second(0).toDate();
                 func = async context => {
-                    context.spend = await prisma.createSpendOfWork({spendtype, spendamount: amount});
+                    context.spend = await prisma.createSpendOfWork({spendtype, spendamount: amount, date: actualDate});
                     return CRUD_OP.CREATED;
                 }
             }
@@ -278,8 +403,12 @@ const resolvers = {
             }
             return response.isAuth(user).resolve(func);
         },
-        upsertIngress: async (_, {ingressId, worktypeId, clientId, amount, tip}, {user}) => {
+        upsertIngress: async (_, {ingressId, worktypeId, clientId, amount, tip, date}, {user}) => {
             const response = new Response();
+
+            if(date)
+                date = moment(date).hour(0).minute(0).second(0).toDate();
+
             let func;
             if(ingressId){
                 func = async context => {
@@ -289,19 +418,33 @@ const resolvers = {
                             client: {connect: {id: clientId}}, 
                             workType: {connect: {id: worktypeId}}, 
                             ingressAmount: amount, 
-                            tip
+                            tip,
+                            date
                         }
                     });   
                     return CRUD_OP.UPDATED;
                 }
             }else{
+                const actualDate = date ||  moment().hour(0).minute(0).second(0).toDate();
                 func = async context => {
-                    context.ingress = await prisma.createIngressOfWork({
+                    const ingObj = {
+                        workType: {connect: {id: worktypeId}},
+                        ingressAmount: amount,
+                        tip,
+                        date: actualDate
+                    };
+                    
+                    
+                    if(clientId)
+                        ingObj.client = {connect: {id: clientId}};
+                    /*context.ingress = await prisma.createIngressOfWork({
                         client: {connect: {id: clientId}},
                         workType: {connect: {id: worktypeId}},
                         ingressAmount: amount,
-                        tip
-                    });
+                        tip,
+                        date: actualDate
+                    });*/
+                    context.ingress = await prisma.createIngressOfWork(ingObj);
                     return CRUD_OP.CREATED;
                 }
             }
