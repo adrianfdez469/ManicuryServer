@@ -26,11 +26,18 @@ const typeDefs = gql`
         imgUrl: String
     }
 
+    type WorkTypeCategory {
+        id: ID!
+        name: String!
+        color: String!
+    }
+
     # Work types, used to define the type of ingress
     type WorkType {
         id: ID!
         name: String!
         price: Float!
+        category: WorkTypeCategory!
     }
 
     # This is used to track all the works that my mom does, all the ingresses that she has on the manicury
@@ -87,6 +94,12 @@ const typeDefs = gql`
         success: Boolean!
         message: String 
         client: [Client]
+    }
+
+    type workTyupeCategorysResponse implements IResponse {
+        success: Boolean!
+        message: String
+        worktypecategory: [WorkTypeCategory]
     }
 
     type workTypeResponse implements IResponse{
@@ -159,6 +172,9 @@ const typeDefs = gql`
         clients(name: String, phone: String, address: String): clientsResponse!
         client(id: ID!): clientResponse!
 
+        # worktypecatergory
+        worktypecategory(name: String): workTyupeCategorysResponse!
+
         # WorkType
         worktypes(name: String): workTypesResponse!
         worktype(id: ID!): workTypeResponse!
@@ -169,10 +185,10 @@ const typeDefs = gql`
         totalSpends(dateRange: dateRange): totalSpendsResponse!
 
         # IngressOfWork
-        ingresses(worktype: String, client: String, ingress: numberRange, tip: numberRange, dateRange: dateRange, pagination: pagination): ingressesResponse!
+        ingresses(worktype: String, client: String, ingress: numberRange, tip: numberRange, 
+            dateRange: dateRange, pagination: pagination, worktypeIds: [ID], wtcategoryIds: [ID]): ingressesResponse!
         ingress(id:ID): ingressResponse!
-        totalIngresses(dateRange: dateRange): totalIngressesResponse!
-        
+        totalIngresses(worktypeIds: [ID], wtcategoryIds: [ID], dateRange: dateRange): totalIngressesResponse!
     }
 
     type Mutation {
@@ -183,7 +199,7 @@ const typeDefs = gql`
         uploadImage(clientId: ID!, file: Upload!): File!
         #deleteClientImage(clientId: ID!): Boolean!
 
-        upsertWorkType(workTypeId: ID, name: String!, price: Float!): workTypeResponse!
+        upsertWorkType(workTypeId: ID, wtcategoryId: ID!, name: String!, price: Float!): workTypeResponse!
         removeWorkType(workTypeId: ID!): Response!
 
         upsertSpend(spendId: ID, spendtype: String!, amount: Float!, date: Date): spendResponse!

@@ -12,10 +12,17 @@ type Client {
     imgUrl: String
 }
 
+type WorkTypeCategory {
+    id: ID! @id
+    name: String!
+    color: String!
+}
+
 type WorkType {
     id: ID! @id
     name: String!
     price: Float!
+    category: WorkTypeCategory! @relation(link:INLINE)
 }
 
 type IngressOfWork {
@@ -33,3 +40,5 @@ type SpendOfWork {
     spendamount: Float!
     date: DateTime
 }
+
+

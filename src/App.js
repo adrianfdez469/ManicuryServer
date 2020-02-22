@@ -1,9 +1,24 @@
 const { ApolloServer } = require('apollo-server');
 const {getUserByToken} = require('./util');
+
+
+const express = require('express');
+const path = require('path');
+const app = express();
+app.use(express.static(path.join(__dirname, 'views','build')));
+app.get('/', function(req, res) {
+  res.sendFile(path.join(__dirname,'views', 'build', 'index.html'));
+});
+app.listen(9000,()=>{
+    console.log('View is up and running!!!');
+});
+
 const typeDefs = require('./schemas');
 const resolvers = require('./resolvers');
 
+
 const server = new ApolloServer({
+    
     typeDefs,
     resolvers,
     context: async ({req}) => {
@@ -19,7 +34,9 @@ const server = new ApolloServer({
             return req;
         }
     }
-});
+}); 
+
+
 
 server.listen()
     .then(info => {

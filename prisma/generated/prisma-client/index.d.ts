@@ -21,6 +21,7 @@ export interface Exists {
   spendOfWork: (where?: SpendOfWorkWhereInput) => Promise<boolean>;
   user: (where?: UserWhereInput) => Promise<boolean>;
   workType: (where?: WorkTypeWhereInput) => Promise<boolean>;
+  workTypeCategory: (where?: WorkTypeCategoryWhereInput) => Promise<boolean>;
 }
 
 export interface Node {}
@@ -141,6 +142,27 @@ export interface Prisma {
     first?: Int;
     last?: Int;
   }) => WorkTypeConnectionPromise;
+  workTypeCategory: (
+    where: WorkTypeCategoryWhereUniqueInput
+  ) => WorkTypeCategoryNullablePromise;
+  workTypeCategories: (args?: {
+    where?: WorkTypeCategoryWhereInput;
+    orderBy?: WorkTypeCategoryOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => FragmentableArray<WorkTypeCategory>;
+  workTypeCategoriesConnection: (args?: {
+    where?: WorkTypeCategoryWhereInput;
+    orderBy?: WorkTypeCategoryOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => WorkTypeCategoryConnectionPromise;
   node: (args: { id: ID_Output }) => Node;
 
   /**
@@ -233,6 +255,28 @@ export interface Prisma {
   }) => WorkTypePromise;
   deleteWorkType: (where: WorkTypeWhereUniqueInput) => WorkTypePromise;
   deleteManyWorkTypes: (where?: WorkTypeWhereInput) => BatchPayloadPromise;
+  createWorkTypeCategory: (
+    data: WorkTypeCategoryCreateInput
+  ) => WorkTypeCategoryPromise;
+  updateWorkTypeCategory: (args: {
+    data: WorkTypeCategoryUpdateInput;
+    where: WorkTypeCategoryWhereUniqueInput;
+  }) => WorkTypeCategoryPromise;
+  updateManyWorkTypeCategories: (args: {
+    data: WorkTypeCategoryUpdateManyMutationInput;
+    where?: WorkTypeCategoryWhereInput;
+  }) => BatchPayloadPromise;
+  upsertWorkTypeCategory: (args: {
+    where: WorkTypeCategoryWhereUniqueInput;
+    create: WorkTypeCategoryCreateInput;
+    update: WorkTypeCategoryUpdateInput;
+  }) => WorkTypeCategoryPromise;
+  deleteWorkTypeCategory: (
+    where: WorkTypeCategoryWhereUniqueInput
+  ) => WorkTypeCategoryPromise;
+  deleteManyWorkTypeCategories: (
+    where?: WorkTypeCategoryWhereInput
+  ) => BatchPayloadPromise;
 
   /**
    * Subscriptions
@@ -257,6 +301,9 @@ export interface Subscription {
   workType: (
     where?: WorkTypeSubscriptionWhereInput
   ) => WorkTypeSubscriptionPayloadSubscription;
+  workTypeCategory: (
+    where?: WorkTypeCategorySubscriptionWhereInput
+  ) => WorkTypeCategorySubscriptionPayloadSubscription;
 }
 
 export interface ClientConstructor<T> {
@@ -314,6 +361,14 @@ export type WorkTypeOrderByInput =
   | "name_DESC"
   | "price_ASC"
   | "price_DESC";
+
+export type WorkTypeCategoryOrderByInput =
+  | "id_ASC"
+  | "id_DESC"
+  | "name_ASC"
+  | "name_DESC"
+  | "color_ASC"
+  | "color_DESC";
 
 export type MutationType = "CREATED" | "UPDATED" | "DELETED";
 
@@ -480,7 +535,54 @@ export interface WorkTypeWhereInput {
   price_lte?: Maybe<Float>;
   price_gt?: Maybe<Float>;
   price_gte?: Maybe<Float>;
+  category?: Maybe<WorkTypeCategoryWhereInput>;
   AND?: Maybe<WorkTypeWhereInput[] | WorkTypeWhereInput>;
+}
+
+export interface WorkTypeCategoryWhereInput {
+  id?: Maybe<ID_Input>;
+  id_not?: Maybe<ID_Input>;
+  id_in?: Maybe<ID_Input[] | ID_Input>;
+  id_not_in?: Maybe<ID_Input[] | ID_Input>;
+  id_lt?: Maybe<ID_Input>;
+  id_lte?: Maybe<ID_Input>;
+  id_gt?: Maybe<ID_Input>;
+  id_gte?: Maybe<ID_Input>;
+  id_contains?: Maybe<ID_Input>;
+  id_not_contains?: Maybe<ID_Input>;
+  id_starts_with?: Maybe<ID_Input>;
+  id_not_starts_with?: Maybe<ID_Input>;
+  id_ends_with?: Maybe<ID_Input>;
+  id_not_ends_with?: Maybe<ID_Input>;
+  name?: Maybe<String>;
+  name_not?: Maybe<String>;
+  name_in?: Maybe<String[] | String>;
+  name_not_in?: Maybe<String[] | String>;
+  name_lt?: Maybe<String>;
+  name_lte?: Maybe<String>;
+  name_gt?: Maybe<String>;
+  name_gte?: Maybe<String>;
+  name_contains?: Maybe<String>;
+  name_not_contains?: Maybe<String>;
+  name_starts_with?: Maybe<String>;
+  name_not_starts_with?: Maybe<String>;
+  name_ends_with?: Maybe<String>;
+  name_not_ends_with?: Maybe<String>;
+  color?: Maybe<String>;
+  color_not?: Maybe<String>;
+  color_in?: Maybe<String[] | String>;
+  color_not_in?: Maybe<String[] | String>;
+  color_lt?: Maybe<String>;
+  color_lte?: Maybe<String>;
+  color_gt?: Maybe<String>;
+  color_gte?: Maybe<String>;
+  color_contains?: Maybe<String>;
+  color_not_contains?: Maybe<String>;
+  color_starts_with?: Maybe<String>;
+  color_not_starts_with?: Maybe<String>;
+  color_ends_with?: Maybe<String>;
+  color_not_ends_with?: Maybe<String>;
+  AND?: Maybe<WorkTypeCategoryWhereInput[] | WorkTypeCategoryWhereInput>;
 }
 
 export type SpendOfWorkWhereUniqueInput = AtLeastOne<{
@@ -590,6 +692,10 @@ export type WorkTypeWhereUniqueInput = AtLeastOne<{
   id: Maybe<ID_Input>;
 }>;
 
+export type WorkTypeCategoryWhereUniqueInput = AtLeastOne<{
+  id: Maybe<ID_Input>;
+}>;
+
 export interface ClientCreateInput {
   id?: Maybe<ID_Input>;
   name: String;
@@ -630,6 +736,18 @@ export interface WorkTypeCreateInput {
   id?: Maybe<ID_Input>;
   name: String;
   price: Float;
+  category: WorkTypeCategoryCreateOneInput;
+}
+
+export interface WorkTypeCategoryCreateOneInput {
+  create?: Maybe<WorkTypeCategoryCreateInput>;
+  connect?: Maybe<WorkTypeCategoryWhereUniqueInput>;
+}
+
+export interface WorkTypeCategoryCreateInput {
+  id?: Maybe<ID_Input>;
+  name: String;
+  color: String;
 }
 
 export interface ClientCreateOneInput {
@@ -655,6 +773,24 @@ export interface WorkTypeUpdateOneRequiredInput {
 export interface WorkTypeUpdateDataInput {
   name?: Maybe<String>;
   price?: Maybe<Float>;
+  category?: Maybe<WorkTypeCategoryUpdateOneRequiredInput>;
+}
+
+export interface WorkTypeCategoryUpdateOneRequiredInput {
+  create?: Maybe<WorkTypeCategoryCreateInput>;
+  update?: Maybe<WorkTypeCategoryUpdateDataInput>;
+  upsert?: Maybe<WorkTypeCategoryUpsertNestedInput>;
+  connect?: Maybe<WorkTypeCategoryWhereUniqueInput>;
+}
+
+export interface WorkTypeCategoryUpdateDataInput {
+  name?: Maybe<String>;
+  color?: Maybe<String>;
+}
+
+export interface WorkTypeCategoryUpsertNestedInput {
+  update: WorkTypeCategoryUpdateDataInput;
+  create: WorkTypeCategoryCreateInput;
 }
 
 export interface WorkTypeUpsertNestedInput {
@@ -727,11 +863,22 @@ export interface UserUpdateManyMutationInput {
 export interface WorkTypeUpdateInput {
   name?: Maybe<String>;
   price?: Maybe<Float>;
+  category?: Maybe<WorkTypeCategoryUpdateOneRequiredInput>;
 }
 
 export interface WorkTypeUpdateManyMutationInput {
   name?: Maybe<String>;
   price?: Maybe<Float>;
+}
+
+export interface WorkTypeCategoryUpdateInput {
+  name?: Maybe<String>;
+  color?: Maybe<String>;
+}
+
+export interface WorkTypeCategoryUpdateManyMutationInput {
+  name?: Maybe<String>;
+  color?: Maybe<String>;
 }
 
 export interface ClientSubscriptionWhereInput {
@@ -782,6 +929,18 @@ export interface WorkTypeSubscriptionWhereInput {
   node?: Maybe<WorkTypeWhereInput>;
   AND?: Maybe<
     WorkTypeSubscriptionWhereInput[] | WorkTypeSubscriptionWhereInput
+  >;
+}
+
+export interface WorkTypeCategorySubscriptionWhereInput {
+  mutation_in?: Maybe<MutationType[] | MutationType>;
+  updatedFields_contains?: Maybe<String>;
+  updatedFields_contains_every?: Maybe<String[] | String>;
+  updatedFields_contains_some?: Maybe<String[] | String>;
+  node?: Maybe<WorkTypeCategoryWhereInput>;
+  AND?: Maybe<
+    | WorkTypeCategorySubscriptionWhereInput[]
+    | WorkTypeCategorySubscriptionWhereInput
   >;
 }
 
@@ -952,6 +1111,7 @@ export interface WorkTypePromise extends Promise<WorkType>, Fragmentable {
   id: () => Promise<ID_Output>;
   name: () => Promise<String>;
   price: () => Promise<Float>;
+  category: <T = WorkTypeCategoryPromise>() => T;
 }
 
 export interface WorkTypeSubscription
@@ -960,6 +1120,7 @@ export interface WorkTypeSubscription
   id: () => Promise<AsyncIterator<ID_Output>>;
   name: () => Promise<AsyncIterator<String>>;
   price: () => Promise<AsyncIterator<Float>>;
+  category: <T = WorkTypeCategorySubscription>() => T;
 }
 
 export interface WorkTypeNullablePromise
@@ -968,6 +1129,37 @@ export interface WorkTypeNullablePromise
   id: () => Promise<ID_Output>;
   name: () => Promise<String>;
   price: () => Promise<Float>;
+  category: <T = WorkTypeCategoryPromise>() => T;
+}
+
+export interface WorkTypeCategory {
+  id: ID_Output;
+  name: String;
+  color: String;
+}
+
+export interface WorkTypeCategoryPromise
+  extends Promise<WorkTypeCategory>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  name: () => Promise<String>;
+  color: () => Promise<String>;
+}
+
+export interface WorkTypeCategorySubscription
+  extends Promise<AsyncIterator<WorkTypeCategory>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  name: () => Promise<AsyncIterator<String>>;
+  color: () => Promise<AsyncIterator<String>>;
+}
+
+export interface WorkTypeCategoryNullablePromise
+  extends Promise<WorkTypeCategory | null>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  name: () => Promise<String>;
+  color: () => Promise<String>;
 }
 
 export interface IngressOfWorkConnection {
@@ -1252,6 +1444,62 @@ export interface AggregateWorkTypeSubscription
   count: () => Promise<AsyncIterator<Int>>;
 }
 
+export interface WorkTypeCategoryConnection {
+  pageInfo: PageInfo;
+  edges: WorkTypeCategoryEdge[];
+}
+
+export interface WorkTypeCategoryConnectionPromise
+  extends Promise<WorkTypeCategoryConnection>,
+    Fragmentable {
+  pageInfo: <T = PageInfoPromise>() => T;
+  edges: <T = FragmentableArray<WorkTypeCategoryEdge>>() => T;
+  aggregate: <T = AggregateWorkTypeCategoryPromise>() => T;
+}
+
+export interface WorkTypeCategoryConnectionSubscription
+  extends Promise<AsyncIterator<WorkTypeCategoryConnection>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<WorkTypeCategoryEdgeSubscription>>>() => T;
+  aggregate: <T = AggregateWorkTypeCategorySubscription>() => T;
+}
+
+export interface WorkTypeCategoryEdge {
+  node: WorkTypeCategory;
+  cursor: String;
+}
+
+export interface WorkTypeCategoryEdgePromise
+  extends Promise<WorkTypeCategoryEdge>,
+    Fragmentable {
+  node: <T = WorkTypeCategoryPromise>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface WorkTypeCategoryEdgeSubscription
+  extends Promise<AsyncIterator<WorkTypeCategoryEdge>>,
+    Fragmentable {
+  node: <T = WorkTypeCategorySubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface AggregateWorkTypeCategory {
+  count: Int;
+}
+
+export interface AggregateWorkTypeCategoryPromise
+  extends Promise<AggregateWorkTypeCategory>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateWorkTypeCategorySubscription
+  extends Promise<AsyncIterator<AggregateWorkTypeCategory>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
 export interface BatchPayload {
   count: Long;
 }
@@ -1515,6 +1763,53 @@ export interface WorkTypePreviousValuesSubscription
   price: () => Promise<AsyncIterator<Float>>;
 }
 
+export interface WorkTypeCategorySubscriptionPayload {
+  mutation: MutationType;
+  node: WorkTypeCategory;
+  updatedFields: String[];
+  previousValues: WorkTypeCategoryPreviousValues;
+}
+
+export interface WorkTypeCategorySubscriptionPayloadPromise
+  extends Promise<WorkTypeCategorySubscriptionPayload>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = WorkTypeCategoryPromise>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = WorkTypeCategoryPreviousValuesPromise>() => T;
+}
+
+export interface WorkTypeCategorySubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<WorkTypeCategorySubscriptionPayload>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = WorkTypeCategorySubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = WorkTypeCategoryPreviousValuesSubscription>() => T;
+}
+
+export interface WorkTypeCategoryPreviousValues {
+  id: ID_Output;
+  name: String;
+  color: String;
+}
+
+export interface WorkTypeCategoryPreviousValuesPromise
+  extends Promise<WorkTypeCategoryPreviousValues>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  name: () => Promise<String>;
+  color: () => Promise<String>;
+}
+
+export interface WorkTypeCategoryPreviousValuesSubscription
+  extends Promise<AsyncIterator<WorkTypeCategoryPreviousValues>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  name: () => Promise<AsyncIterator<String>>;
+  color: () => Promise<AsyncIterator<String>>;
+}
+
 /*
 The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `"4"`) or integer (such as `4`) input value will be accepted as an ID.
 */
@@ -1564,6 +1859,10 @@ export const models: Model[] = [
   },
   {
     name: "Client",
+    embedded: false
+  },
+  {
+    name: "WorkTypeCategory",
     embedded: false
   },
   {

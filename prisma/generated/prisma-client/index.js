@@ -13,6 +13,10 @@ var models = [
     embedded: false
   },
   {
+    name: "WorkTypeCategory",
+    embedded: false
+  },
+  {
     name: "WorkType",
     embedded: false
   },
