@@ -10,7 +10,7 @@ app.get('/', function(req, res) {
   res.sendFile(path.join(__dirname,'views', 'build', 'index.html'));
 });
 app.listen(9000,()=>{
-    console.log('View is up and running!!!');
+    console.log('View is up and running on http://localhost:9000');
 });
 
 const typeDefs = require('./schemas');
